@@ -1,0 +1,687 @@
+{
+  "name": "Customer Feedback",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Creative ENGE~NEARS Feedback",
+        "formDescription": "This is an user feedback form and this is used for improve user experience only.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full Name",
+              "placeholder": "enter your full name"
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "placeholder": "enter your correct email address"
+            },
+            {
+              "fieldLabel": "Mobile No.",
+              "placeholder": "enter your mobile number"
+            },
+            {
+              "fieldLabel": "Feedback",
+              "placeholder": "enter your feedback here"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -800,
+        -304
+      ],
+      "id": "227218aa-1d46-4d97-bb95-ebf8893ae21c",
+      "name": "On form submission",
+      "webhookId": "07929fb8-8c50-44f0-8a0c-0fa8c3b570d3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Your role is to determine if the feedback filled by the customers is the complaint or an Compliment or an Feature adding request.\nThe Feedback is {{ $json.Feedback }}\n\nYour responce should be only one from below\n Complaint\n Compliment\n Feature Addition Request\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -576,
+        -160
+      ],
+      "id": "6ddb5c04-6f84-45cf-82e3-004273380cfc",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -704,
+        16
+      ],
+      "id": "402b38a1-f14d-48d8-99c0-809763bf4cb6",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "7x1sIxMDH1CaYvs1",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -240,
+        -288
+      ],
+      "id": "5c9a98d3-23f0-4cfc-9e19-2a144b1515de",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "Complaint",
+                    "rightValue": "={{ $json.output }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "309dc5d3-9386-441a-b53d-3293b4c9dbd0"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "cff64692-d506-4003-8c34-7a817ed2467c",
+                    "leftValue": "Compliment",
+                    "rightValue": "={{ $json.output }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1ac62f0e-fae2-49e6-973c-207fd57fabda",
+                    "leftValue": "Feature Addition Request",
+                    "rightValue": "={{ $json.output }}",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -32,
+        -304
+      ],
+      "id": "9117b601-99d5-4b07-8218-96805d2a2b2f",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appUgxXe9qzZrrixx",
+          "mode": "list",
+          "cachedResultName": "Agent",
+          "cachedResultUrl": "https://airtable.com/appUgxXe9qzZrrixx"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl6AeHrp7pTu3S9G",
+          "mode": "list",
+          "cachedResultName": "Complaint",
+          "cachedResultUrl": "https://airtable.com/appUgxXe9qzZrrixx/tbl6AeHrp7pTu3S9G"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $json['Full Name'] }}",
+            "Email": "={{ $json.Email }}",
+            "Mobile No.": "={{ $json['Mobile No.'] }}",
+            "Feedback": "={{ $json.Feedback }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mobile No.",
+              "displayName": "Mobile No.",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Feedback",
+              "displayName": "Feedback",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        -496
+      ],
+      "id": "4c8a9a16-8a29-4d4a-98f5-1b750b6bea04",
+      "name": "Complaint Record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "0b0Y0k9LK0e3rDCh",
+          "name": "Airtable account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appUgxXe9qzZrrixx",
+          "mode": "list",
+          "cachedResultName": "Agent",
+          "cachedResultUrl": "https://airtable.com/appUgxXe9qzZrrixx"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl7DUMDfbKhrkt7O",
+          "mode": "list",
+          "cachedResultName": "Compliment",
+          "cachedResultUrl": "https://airtable.com/appUgxXe9qzZrrixx/tbl7DUMDfbKhrkt7O"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $json['Full Name'] }}",
+            "Email": "={{ $json.Email }}",
+            "Mobile No.": "={{ $json['Mobile No.'] }}",
+            "Feedback": "={{ $json.Feedback }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mobile No.",
+              "displayName": "Mobile No.",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Feedback",
+              "displayName": "Feedback",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        -288
+      ],
+      "id": "27306417-9d49-498f-abaa-4ae1851f135d",
+      "name": "Compliment Record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "0b0Y0k9LK0e3rDCh",
+          "name": "Airtable account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appUgxXe9qzZrrixx",
+          "mode": "list",
+          "cachedResultName": "Agent",
+          "cachedResultUrl": "https://airtable.com/appUgxXe9qzZrrixx"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl237bpk1qsU7VOs",
+          "mode": "list",
+          "cachedResultName": "Feature Addition Request",
+          "cachedResultUrl": "https://airtable.com/appUgxXe9qzZrrixx/tbl237bpk1qsU7VOs"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Full Name": "={{ $json['Full Name'] }}",
+            "Email": "={{ $json.Email }}",
+            "Mobile No.": "={{ $json['Mobile No.'] }}",
+            "Feedback": "={{ $json.Feedback }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Mobile No.",
+              "displayName": "Mobile No.",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Feedback",
+              "displayName": "Feedback",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        -64
+      ],
+      "id": "fd539394-eaa3-42b2-99ea-2764a0958dd0",
+      "name": "Feature Addition Request",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "0b0Y0k9LK0e3rDCh",
+          "name": "Airtable account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BK4FC58RJ",
+          "mode": "list",
+          "cachedResultName": "customer-support"
+        },
+        "text": "={{ $json.fields['Full Name'] }}\n{{ $json.fields.Email }}\n{{ $json.fields.Feedback }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        480,
+        -496
+      ],
+      "id": "1922cb67-b4b2-4f71-a65c-9d3d0423ddb6",
+      "name": "Send a message",
+      "webhookId": "ac7b657c-66ca-4a04-9e90-c3e3ec8ce635",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "3U6vYDpe28FhJcxR",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BKV5P2AGG",
+          "mode": "list",
+          "cachedResultName": "feature-adding-request"
+        },
+        "text": "={{ $json.fields['Full Name'] }}\n{{ $json.fields.Email }}\n{{ $json.fields.Feedback }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        480,
+        -64
+      ],
+      "id": "8c33078b-6a2b-4680-ba13-77f18d625e58",
+      "name": "Send a message1",
+      "webhookId": "ac7b657c-66ca-4a04-9e90-c3e3ec8ce635",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "3U6vYDpe28FhJcxR",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Merge').item.json.Email }}",
+        "subject": "We Have Received Your Complaint",
+        "emailType": "text",
+        "message": "=Hello, {{ $('Merge').item.json['Full Name'] }}\n\nThank you for reaching out to us.\n\nYour complaint has been successfully registered, and our team is actively investigating the issue. We are committed to resolving your concern at the earliest and will contact you as soon as we have an update.\n\nThank you for your patience and cooperation.\n\nRegards,\nCustomer Support Team\nCREATIVE ENGE~NEARS",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        752,
+        -496
+      ],
+      "id": "1ab9f932-545d-48c2-82d9-323aad682775",
+      "name": "Send a message2",
+      "webhookId": "5e948dff-5d6c-43e6-82dc-fce67af55b06",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WeNdHlO2isyWIojP",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Merge').item.json.Email }}",
+        "subject": "Thank You for Your Feature Suggestion",
+        "emailType": "text",
+        "message": "=Hello, {{ $('Merge').item.json['Full Name'] }}\n\nThank you for your valuable suggestion and for helping us improve our platform.\n\nWe have successfully received your feature request, and it has been forwarded to our product team for review. Every suggestion we receive is carefully evaluated based on user needs, feasibility, and our future development roadmap.\n\nAlthough we cannot promise immediate implementation, your feedback is extremely valuable and helps guide the continuous improvement of our products and services.\n\nWe appreciate your time, ideas, and continued support. If additional information is required, our team will contact you.\n\nThank you for contributing to the future of CREATIVE ENGE~NEARS.\n\nWarm regards,\n\nCustomer Support Team\nCREATIVE ENGE~NEARS",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        -64
+      ],
+      "id": "1c9d1bf0-a268-448d-8e77-57bcfe6c4fed",
+      "name": "Send a message3",
+      "webhookId": "5e948dff-5d6c-43e6-82dc-fce67af55b06",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "WeNdHlO2isyWIojP",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Complaint Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Compliment Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Feature Addition Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complaint Record": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Feature Addition Request": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message1": {
+      "main": [
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
